@@ -1,0 +1,101 @@
+{% extends 'watches/base.html' %}
+{% load static %}
+
+{% block title %}Category{% endblock title%}
+
+{% block main_content %}
+<div class="container mt-4">
+    <div class="row">
+
+        <!-- LEFT SIDEBAR (Categories) -->
+        <div class="col-md-3">
+            <div class="list-group">
+
+                <a href="{% url 'all_watches' %}"
+                   class="list-group-item list-group-item-action">
+                    All Watches
+                </a>
+
+                <a href="{% url 'category' 'Luxury' %}"
+                   class="list-group-item list-group-item-action">
+                    Luxury
+                </a>
+
+                <a href="{% url 'category' 'Sport' %}"
+                   class="list-group-item list-group-item-action">
+                    Sport
+                </a>
+
+                <a href="{% url 'category' 'Casual' %}"
+                   class="list-group-item list-group-item-action">
+                    Casual
+                </a>
+
+                <a href="{% url 'category' 'Smart' %}"
+                   class="list-group-item list-group-item-action">
+                    Smart
+                </a>
+
+                <a href="{% url 'category' 'Vintage' %}"
+                   class="list-group-item list-group-item-action">
+                    Vintage
+                </a>
+
+            </div>
+        </div>
+
+        <!-- RIGHT SIDE (WATCH PRODUCTS) -->
+        <div class="col-md-9">
+            <div class="row">
+
+                {% for watch in watches %}
+
+                <div class="col-md-4 mb-4">
+                    <div class="card text-center shadow-sm h-100">
+
+                        <img src="{{ watch.image.url }}"
+                             class="card-img-top"
+                             height="220px"
+                             style="object-fit: cover;">
+
+                        <div class="card-body">
+
+                            <h5 class="fw-bold">
+                                {{ watch.name }}
+                            </h5>
+
+                            <p class="text-muted">
+                                {{ watch.brand }}
+                            </p>
+
+                            {% if watch.discounted_price %}
+                                <h6 class="text-danger">
+                                    ₹{{ watch.discounted_price }}
+                                </h6>
+                                <small class="text-decoration-line-through text-muted">
+                                    ₹{{ watch.price }}
+                                </small>
+                            {% else %}
+                                <h6>
+                                    ₹{{ watch.price }}
+                                </h6>
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+                </div>
+
+                {% empty %}
+                    <h4>No watches available.</h4>
+                {% endfor %}
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock main_content %}
+
+

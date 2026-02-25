@@ -4,9 +4,131 @@
 {% block title %}Home{% endblock title%}
 
 
-{% block main-content %}
+{% block banner_slider %}
+<div id="carouselExample" class="carousel slide" data-bs-ride="carousel" style="height:420px; max-height:420px; overflow:hidden;">
 
-<h2>Welcome Watch Collection site....</h2>
-<p>Copyright : 2026 | Develop by : Meet Likhiya</p>
+    <div class="carousel-inner">
 
-{% endblock main-content%}
+        <div class="carousel-item active">
+            <img src="{% static 'watches/images/banner/b1.png' %}" 
+                 class="d-block w-100"
+                 style="width:100%; height:100%; object-fit:cover;">
+        </div>
+
+        <div class="carousel-item">
+            <img src="{% static 'watches/images/banner/b2.png' %}" 
+                 class="d-block w-100"
+                 style="width:100%; height:100%; object-fit:cover;">
+        </div>
+
+        <div class="carousel-item">
+            <img src="{% static 'watches/images/banner/b3.png' %}" 
+                 class="d-block w-100"
+                 style="width:100%; height:100%; object-fit:cover;">
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
+
+{% block information %}
+<div class="container-fluid bg-success text-white text-center py-5 shadow">
+    <h1 class="display-5 fw-bold">Explore Our Premium Watches</h1>
+    
+    <p class="fs-5 mt-3">
+        Experience precision, luxury, and style in every tick.
+        Browse our exclusive collection crafted for modern lifestyles.
+    </p>
+</div>
+{% endblock information %}
+
+{% block main_content %}
+
+<div class="container my-5">
+
+    <h2 class="text-center mb-5">Our Premium Watches</h2>
+
+    <div class="row text-center">
+
+        <div class="col-md-3 col-sm-6 mb-4">
+            <div class="card shadow">
+                <img src="{% static 'watches/images/product/i1.png' %}" class="card-img-top" alt="">
+                <div class="card-body">
+                    <h5 class="card-title">Classic Black Watch</h5>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6 mb-4">
+            <div class="card shadow">
+                <img src="{% static 'watches/images/product/i2.png' %}" class="card-img-top" alt="">
+                <div class="card-body">
+                    <h5 class="card-title">Luxury Gold Watch</h5>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6 mb-4">
+            <div class="card shadow">
+                <img src="{% static 'watches/images/product/i3.png' %}" class="card-img-top" alt="">
+                <div class="card-body">
+                    <h5 class="card-title">Silver Steel Watch</h5>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6 mb-4">
+            <div class="card shadow">
+                <img src="{% static 'watches/images/product/i4.png' %}" class="card-img-top" alt="">
+                <div class="card-body">
+                    <h5 class="card-title">Modern Blue Watch</h5>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row text-center mt-4">
+
+        <div class="col-md-3 col-sm-6 mb-4">
+            <div class="card shadow">
+                <img src="{% static 'watches/images/product/i5.png' %}" class="card-img-top" alt="">
+                <div class="card-body">
+                    <h5 class="card-title">Premium Leather Watch</h5>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6 mb-4">
+            <div class="card shadow">
+                <img src="{% static 'watches/images/product/i6.png' %}" class="card-img-top" alt="">
+                <div class="card-body">
+                    <h5 class="card-title">Elegant Rose Gold</h5>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6 mb-4">
+            <div class="card shadow">
+                <img src="{% static 'watches/images/product/i7.png' %}" class="card-img-top" alt="">
+                <div class="card-body">
+                    <h5 class="card-title">Sport Edition Watch</h5>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6 mb-4">
+            <div class="card shadow">
+                <img src="{% static 'watches/images/product/i8.png' %}" class="card-img-top" alt="">
+                <div class="card-body">
+                    <h5 class="card-title">Smart Style Watch</h5>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock main_content %}
