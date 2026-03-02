@@ -1,0 +1,23 @@
+{% extends "watches/base.html" %}
+
+{% block main_content %}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-4">
+
+            <h3 class="text-center mb-4">Login</h3>
+
+            <form method="POST">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-success w-100">
+                    Login
+                </button>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends 'watches/base.html' %}
+{% load static %}
+
+{% block title %}Contact Us{% endblock %}
+
+{% block main_content %}
+
+<div class="container mt-5">
+
+    <!-- Page Heading -->
+    <div class="text-center mb-5">
+        <h1 class="fw-bold">Contact WatchHub</h1>
+        <p class="text-muted">We would love to hear from you</p>
+    </div>
+
+    <div class="row">
+
+        <!-- Contact Information -->
+        <div class="col-md-5 mb-4">
+            <div class="bg-light p-4 rounded shadow-sm h-100">
+                <h4 class="mb-3">Get In Touch</h4>
+
+                <p><strong>📍 Address:</strong><br>
+                WatchHub Pvt. Ltd.<br>
+                Nadiad, Gujarat, India</p>
+
+                <p><strong>📞 Phone:</strong><br>
+                Helpline NO. +91 99999 33333</p>
+
+                <p><strong>📧 Email:</strong><br>
+                support@watchhub.com</p>
+
+                <p><strong>⏰ Working Hours:</strong><br>
+                Monday – Saturday<br>
+                9:00 AM – 7:00 PM</p>
+            </div>
+        </div>
+
+        <!-- Contact Form -->
+        <div class="col-md-7">
+            <div class="p-4 rounded shadow-sm border">
+                <h4 class="mb-4">Send Us a Message</h4>
+
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" class="form-control" placeholder="Enter your name" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" class="form-control" placeholder="Enter your email" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Subject</label>
+                        <input type="text" class="form-control" placeholder="Subject">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Message</label>
+                        <textarea class="form-control" rows="4" placeholder="Write your message..." required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-success">
+                        Send Message
+                    </button>
+
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
