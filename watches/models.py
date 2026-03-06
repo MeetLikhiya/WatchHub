@@ -1,4 +1,6 @@
 from django.db import models
+from django.contrib.auth.models import User
+from django.core.validators import RegexValidator
 
 CATEGORY_CHOICES = [
     ('Luxury', 'Luxury'),
@@ -24,4 +26,70 @@ class Watch(models.Model):
     image = models.ImageField(upload_to='watches')
 
     def __str__(self):
-        return self.name 
+        return self.name
+    
+# ---------------------------
+# Customer Model
+# ---------------------------
+class Customer(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    name = models.CharField(max_length=100)
+    locality = models.CharField(max_length=200)
+    city = models.CharField(max_length=100)
+    state = models.CharField(max_length=100)
+    zipcode = models.IntegerField()
+
+    def __str__(self):
+        return self.name
+
+
+# ---------------------------
+# Product / Watch Model
+# ---------------------------
+class Product(models.Model):
+
+    CATEGORY_CHOICES = (
+        ('Luxury','Luxury'),
+        ('Sport','Sport'),
+        ('Casual','Casual'),
+        ('Smart','Smart'),
+        ('Vintage','Vintage')
+    )
+
+    name = models.CharField(max_length=100)
+    brand = models.CharField(max_length=100)
+    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
+
+    price = models.FloatField()
+    discounted_price = models.FloatField()
+
+    description = models.TextField()
+    image = models.ImageField(upload_to='watches')
+
+    def __str__(self):
+        return self.name
+    
+class Address(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    name = models.CharField(max_length=100)
+
+    mobile = models.CharField(
+        max_length=10,
+        validators=[
+            RegexValidator(
+                regex=r'^\d{10}$',
+                message="Mobile number must be exactly 10 digits"
+            )
+        ]
+    )
+
+    address = models.CharField(max_length=200)
+    city = models.CharField(max_length=100)
+    state = models.CharField(max_length=100)
+
+    pincode = models.CharField(max_length=6)
+
+    def __str__(self):
+        return self.name

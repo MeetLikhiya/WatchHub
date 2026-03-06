@@ -4,9 +4,14 @@ from django.views import View
 from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.decorators import login_required
 
 from .models import Watch
 from .forms import CustomerRegistrationForm, LoginForm
+
+from .forms import AddressForm
+from .models import Address
+from .forms import EditProfileForm
 
 
 # ---------------- HOME ----------------
@@ -91,3 +96,69 @@ def user_login(request):
 def user_logout(request):
     logout(request)
     return redirect("home")
+
+
+@login_required
+def profile(request):
+    return render(request, "watches/profile.html")
+
+@login_required
+def add_address(request):
+
+    if request.method == "POST":
+        form = AddressForm(request.POST)
+
+        if form.is_valid():
+            addr = form.save(commit=False)
+            addr.user = request.user
+            addr.save()
+            return redirect('address')
+
+    else:
+        form = AddressForm()
+
+    return render(request, "watches/add_address.html", {'form': form})
+
+
+@login_required
+def address(request):
+
+    add = Address.objects.filter(user=request.user)
+
+    return render(request, "watches/address.html", {'add': add})
+
+@login_required
+def edit_address(request, id):
+    address = get_object_or_404(Address, id=id, user=request.user)
+
+    if request.method == 'POST':
+        form = AddressForm(request.POST, instance=address)
+        if form.is_valid():
+            form.save()
+            return redirect('address')
+    else:
+        form = AddressForm(instance=address)
+
+    return render(request, 'watches/add_address.html', {'form': form})
+
+
+@login_required
+def delete_address(request, id):
+    address = get_object_or_404(Address, id=id, user=request.user)
+    address.delete()
+    return redirect('address')
+
+@login_required
+def edit_profile(request):
+
+    if request.method == 'POST':
+        form = EditProfileForm(request.POST, instance=request.user)
+
+        if form.is_valid():
+            form.save()
+            return redirect('profile')
+
+    else:
+        form = EditProfileForm(instance=request.user)
+
+    return render(request, 'watches/edit_profile.html', {'form': form})

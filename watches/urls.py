@@ -2,6 +2,8 @@ from django.urls import path
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.auth import views as auth_views
+
 
 urlpatterns = [
     path("", views.home, name="home"),
@@ -12,10 +14,31 @@ urlpatterns = [
     path("category/<str:category>/", views.CategoryView.as_view(), name="category"),
     path("watch/<int:pk>/", views.WatchDetailView.as_view(), name="watch_detail"),
 
-    # ✅ Authentication URLs
+    # Authentication URLs
     path("register/", views.register, name="register"),
     path("login/", views.user_login, name="login"),
     path("logout/", views.user_logout, name="logout"),
+
+    # profile
+    path('profile/', views.profile, name='profile'),
+
+    #addresss
+    path('add-address/', views.add_address, name='add_address'),
+    path('address/', views.address, name='address'),
+
+    path('edit-address/<int:id>/', views.edit_address, name='edit_address'),
+    path('delete-address/<int:id>/', views.delete_address, name='delete_address'),
+    path('edit-profile/', views.edit_profile, name='edit_profile'),
+
+    # password reset
+    # path(
+    #     "password-reset/",
+    #     auth_views.PasswordResetView.as_view(
+    #         template_name="watches/password_reset.html"
+    #     ),
+    #     name="password_reset"
+    # ),
+
 ]
 
 # Serve media files (development only)

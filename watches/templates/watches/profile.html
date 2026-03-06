@@ -1,0 +1,111 @@
+{% extends "watches/base.html" %}
+
+{% block main_content %}
+
+<div class="container mt-5">
+
+<div class="row">
+
+    <!-- LEFT SIDEBAR -->
+    <div class="col-md-3">
+
+        <div class="card shadow">
+
+            <div class="card-body text-center">
+
+                <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+                     width="80"
+                     class="mb-2">
+
+                <h5>Hello,</h5>
+                <h6>{{ request.user.username }}</h6>
+
+            </div>
+
+        </div>
+
+        <div class="list-group mt-3 shadow">
+
+            <a href="{% url 'profile' %}" class="list-group-item list-group-item-action">
+                Profile Information
+            </a>
+
+            <a href="#" class="list-group-item list-group-item-action">
+                My Orders
+            </a>
+
+            <a href="#" class="list-group-item list-group-item-action">
+                Wishlist
+            </a>
+
+            <a href="{% url 'address' %}" class="list-group-item list-group-item-action">
+                Manage Address
+            </a>
+
+            <a href="{% url 'logout' %}" class="list-group-item list-group-item-action text-danger">
+                Logout
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- RIGHT SIDE CONTENT -->
+    <div class="col-md-9">
+
+        <div class="card shadow">
+
+            <div class="card-header bg-success text-white">
+                <h4>Profile Information</h4>
+            </div>
+
+            <div class="card-body">
+
+                <div class="row mb-3">
+
+                    <div class="col-md-6">
+                        <label class="form-label"><b>Username</b></label>
+                        <input type="text"
+                               class="form-control"
+                               value="{{ request.user.username }}"
+                               readonly>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label"><b>Email</b></label>
+                        <input type="text"
+                               class="form-control"
+                               value="{{ request.user.email }}"
+                               readonly>
+                    </div>
+
+                </div>
+
+                <div class="row mb-3">
+
+                    <div class="col-md-6">
+                        <label class="form-label"><b>Date Joined</b></label>
+                        <input type="text"
+                               class="form-control"
+                               value="{{ request.user.date_joined }}"
+                               readonly>
+                    </div>
+
+                </div>
+
+                <a href="{% url 'edit_profile' %}" class="btn btn-success">
+                    Edit Profile
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</div>
+
+{% endblock %}
