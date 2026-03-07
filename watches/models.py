@@ -93,3 +93,35 @@ class Address(models.Model):
 
     def __str__(self):
         return self.name
+    
+
+
+class Cart(models.Model):
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    watch = models.ForeignKey(Watch, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    def total_price(self):
+        if self.watch.discounted_price:
+            return self.quantity * self.watch.discounted_price
+        return self.quantity * self.watch.price
+
+    def __str__(self):
+        return self.user.username
+
+from django.utils import timezone
+
+class Order(models.Model):
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    watch = models.ForeignKey(Watch, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    address = models.ForeignKey(Address, on_delete=models.CASCADE)
+    ordered_date = models.DateTimeField(default=timezone.now)
+    status = models.CharField(max_length=50, default="Pending")
+
+    def __str__(self):
+        return str(self.user)

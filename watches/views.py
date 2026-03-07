@@ -6,7 +6,7 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 
-from .models import Watch
+from .models import Watch,Cart
 from .forms import CustomerRegistrationForm, LoginForm
 
 from .forms import AddressForm
@@ -162,3 +162,86 @@ def edit_profile(request):
         form = EditProfileForm(instance=request.user)
 
     return render(request, 'watches/edit_profile.html', {'form': form})
+
+@login_required
+def add_to_cart(request, watch_id):
+
+    watch = get_object_or_404(Watch, id=watch_id)
+
+    cart_item, created = Cart.objects.get_or_create(
+        user=request.user,
+        watch=watch
+    )
+
+    if not created:
+        cart_item.quantity += 1
+        cart_item.save()
+
+    return redirect('view_cart')
+
+@login_required
+def view_cart(request):
+
+    cart_items = Cart.objects.filter(user=request.user)
+
+    total = 0
+    for item in cart_items:
+        total += item.total_price()
+
+    context = {
+        'cart_items': cart_items,
+        'total': total
+    }
+
+    return render(request, 'watches/cart.html', context)
+
+@login_required
+def remove_from_cart(request, cart_id):
+
+    item = get_object_or_404(Cart, id=cart_id, user=request.user)
+    item.delete()
+
+    return redirect('view_cart')
+
+@login_required
+def increase_quantity(request, cart_id):
+
+    cart = Cart.objects.get(id=cart_id)
+
+    cart.quantity += 1
+    cart.save()
+
+    return redirect('view_cart')
+
+@login_required
+def decrease_quantity(request, cart_id):
+
+    cart = Cart.objects.get(id=cart_id)
+
+    if cart.quantity > 1:
+        cart.quantity -= 1
+        cart.save()
+    else:
+        cart.delete()
+
+    return redirect('view_cart')
+
+@login_required
+def checkout(request):
+
+    cart_items = Cart.objects.filter(user=request.user)
+
+    addresses = Address.objects.filter(user=request.user)
+
+    total = 0
+
+    for item in cart_items:
+        total += item.total_price()
+
+    context = {
+        'cart_items': cart_items,
+        'addresses': addresses,
+        'total': total
+    }
+
+    return render(request, 'watches/checkout.html', context)

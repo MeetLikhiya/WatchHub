@@ -1,0 +1,130 @@
+{% extends 'watches/base.html' %}
+
+{% block main_content %}
+
+<div class="container mt-5">
+
+<h2 class="mb-4">Checkout</h2>
+
+<form method="POST">
+{% csrf_token %}
+
+<div class="row">
+
+<!-- LEFT SIDE : ADDRESS SELECTION -->
+
+<div class="col-md-7">
+
+<h4 class="mb-3">Select Delivery Address</h4>
+
+{% for addr in addresses %}
+
+<div class="card shadow-sm mb-3 p-3">
+
+<div class="form-check">
+
+<input class="form-check-input"
+       type="radio"
+       name="address"
+       value="{{ addr.id }}"
+       required>
+
+<label class="form-check-label">
+
+<strong>{{ addr.name }}</strong>
+
+<p class="mb-1">
+{{ addr.address }}
+</p>
+
+<p class="mb-1">
+{{ addr.city }}, {{ addr.state }}
+</p>
+
+<p class="mb-0">
+Pincode: {{ addr.pincode }}
+</p>
+
+</label>
+
+</div>
+
+</div>
+
+{% empty %}
+
+<div class="alert alert-warning">
+No address found. Please add an address first.
+</div>
+
+{% endfor %}
+
+</div>
+
+
+<!-- RIGHT SIDE : ORDER SUMMARY -->
+
+<div class="col-md-5">
+
+<div class="card shadow-sm p-4">
+
+<h4 class="mb-3">Order Summary</h4>
+
+<table class="table">
+
+<tr>
+<th>Watch</th>
+<th>Qty</th>
+<th>Total</th>
+</tr>
+
+{% for item in cart_items %}
+
+<tr>
+
+<td>{{ item.watch.name }}</td>
+
+<td>{{ item.quantity }}</td>
+
+<td>₹{{ item.total_price }}</td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+<hr>
+
+<p>
+Subtotal
+<span class="float-end">₹ {{ total }}</span>
+</p>
+
+<p>
+Shipping
+<span class="float-end">₹ 40</span>
+</p>
+
+<hr>
+
+<h5>
+Total
+<span class="float-end">₹ {{ total|add:40 }}</span>
+</h5>
+
+<button type="submit" class="btn btn-primary w-100 mt-3">
+Place Order
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+</form>
+
+</div>
+
+{% endblock %}

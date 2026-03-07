@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Watch,Customer, Product
+from .models import Watch,Customer, Product , Cart, Address,Order
 
 # Register your models here.
 @admin.register(Watch)
@@ -60,3 +60,8 @@ class ProductAdmin(admin.ModelAdmin):
         'category',
         'brand'
     )
+
+
+admin.site.register(Cart)
+admin.site.register(Address)
+admin.site.register(Order)

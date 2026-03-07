@@ -30,6 +30,15 @@ urlpatterns = [
     path('delete-address/<int:id>/', views.delete_address, name='delete_address'),
     path('edit-profile/', views.edit_profile, name='edit_profile'),
 
+    path('add-to-cart/<int:watch_id>/', views.add_to_cart, name='add_to_cart'),
+    path('cart/', views.view_cart, name='view_cart'),
+    path('remove-cart/<int:cart_id>/', views.remove_from_cart, name='remove_from_cart'),
+    path('increase/<int:cart_id>/', views.increase_quantity, name='increase_quantity'),
+    path('decrease/<int:cart_id>/', views.decrease_quantity, name='decrease_quantity'),
+
+    path('checkout/', views.checkout, name='checkout'),
+
+
     # password reset
     # path(
     #     "password-reset/",

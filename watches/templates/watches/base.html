@@ -119,7 +119,12 @@
 
                 <!-- Cart -->
                 <li class="nav-item">
-                    <a class="nav-link text-white" href="#">Cart</a>
+                        <a href="{% url 'view_cart' %}" class="btn btn-outline-dark">
+                            Cart
+                            <span class="badge bg-danger">
+                            {{ request.user.cart_set.count }}
+                            </span>
+                        </a>
                 </li>
 
                 <!-- Wishlist -->
