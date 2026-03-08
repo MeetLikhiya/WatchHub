@@ -1,0 +1,108 @@
+{% extends 'watches/base.html' %}
+
+{% block main_content %}
+
+<div class="container mt-5">
+
+<h2 class="text-center mb-4">Shopping Cart</h2>
+
+<div class="row">
+
+<!-- CART ITEMS -->
+<div class="col-md-8">
+
+{% for item in cart_items %}
+
+<div class="card mb-3 p-3 shadow-sm">
+
+<div class="row align-items-center">
+
+<div class="col-md-2">
+<img src="{{ item.watch.image.url }}" class="img-fluid">
+</div>
+
+<div class="col-md-4">
+<h5>{{ item.watch.name }}</h5>
+
+<p class="text-muted">
+₹{{ item.watch.discounted_price|default:item.watch.price }}
+</p>
+</div>
+
+<div class="col-md-3 text-center">
+
+<a href="{% url 'decrease_quantity' item.id %}" class="btn btn-sm btn-danger">-</a>
+
+<span class="mx-2">{{ item.quantity }}</span>
+
+<a href="{% url 'increase_quantity' item.id %}" class="btn btn-sm btn-success">+</a>
+
+</div>
+
+<div class="col-md-2 text-center">
+
+<strong>₹{{ item.total_price }}</strong>
+
+</div>
+
+<div class="col-md-1 text-end">
+
+<a href="{% url 'remove_from_cart' item.id %}" class="btn btn-sm btn-warning">
+Remove
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+{% empty %}
+
+<div class="alert alert-info">
+Your cart is empty.
+</div>
+
+{% endfor %}
+
+</div>
+
+
+<!-- ORDER SUMMARY -->
+
+<div class="col-md-4">
+
+<div class="card p-3 shadow-sm">
+
+<h4 class="mb-3">Order Summary</h4>
+
+<p>
+Subtotal
+<span class="float-end">₹ {{ total }}</span>
+</p>
+
+<p>
+Shipping
+<span class="float-end">₹ 40</span>
+</p>
+
+<hr>
+
+<h5>
+Total
+<span class="float-end">₹ {{ total|add:40 }}</span>
+</h5>
+
+<a href="{% url 'checkout' %}" class="btn btn-primary">
+Place Order
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}

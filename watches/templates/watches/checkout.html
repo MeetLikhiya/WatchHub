@@ -1,0 +1,315 @@
+{% extends 'watches/base.html' %}
+
+{% block main_content %}
+
+<style>
+  .payment-option {
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    padding: 16px 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 12px;
+    background: #fff;
+  }
+  .payment-option:hover { border-color: #198754; background: #f8fff9; }
+  .payment-option.active { border-color: #198754; background: #f0fff4; }
+  .payment-option input[type="radio"] { accent-color: #198754; }
+  .payment-option .pay-label { font-weight: 600; font-size: 15px; color: #212529; margin-left: 10px; }
+  .payment-option .pay-desc { font-size: 13px; color: #6c757d; margin-left: 30px; margin-top: 3px; }
+  .payment-option .pay-icons { margin-left: 30px; margin-top: 8px; }
+  .pay-badge {
+    display: inline-block;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-right: 5px;
+    background: #fff;
+  }
+  .payment-detail-form { display: none; margin-top: 14px; padding-top: 14px; border-top: 1px solid #e9ecef; }
+  .payment-detail-form.show { display: block; }
+  .card-row { display: flex; gap: 12px; }
+  .card-row .form-group { flex: 1; }
+  .bank-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 8px; }
+  .bank-btn {
+    border: 2px solid #dee2e6; border-radius: 6px; padding: 10px 6px;
+    text-align: center; cursor: pointer; font-size: 12px; font-weight: 600;
+    color: #495057; background: #fff; transition: all .2s; user-select: none;
+  }
+  .bank-btn:hover, .bank-btn.selected { border-color: #198754; background: #f0fff4; color: #198754; }
+  .bank-icon { font-size: 20px; display: block; margin-bottom: 4px; }
+  .addr-card {
+    border: 2px solid #dee2e6; border-radius: 8px; padding: 14px 18px;
+    cursor: pointer; transition: all .2s; margin-bottom: 12px; background: #fff;
+  }
+  .addr-card:hover { border-color: #198754; background: #f8fff9; }
+  .addr-card.active { border-color: #198754; background: #f0fff4; }
+</style>
+
+<div class="container mt-5 mb-5">
+<h2 class="mb-4">Checkout</h2>
+
+<form method="POST" id="checkoutForm" onsubmit="return validatePayment()">
+{% csrf_token %}
+<input type="hidden" name="payment_method" id="paymentMethodInput" value="cod">
+
+<div class="row g-4">
+
+  <!-- LEFT -->
+  <div class="col-md-7">
+
+    <!-- ADDRESS -->
+    <div class="card shadow-sm p-4 mb-4">
+      <h5 class="mb-3"><span class="badge bg-success me-2">1</span>Select Delivery Address</h5>
+
+      {% for addr in addresses %}
+      <label class="addr-card d-block" id="addr-{{ addr.id }}">
+        <div class="d-flex align-items-start gap-3">
+          <input class="form-check-input mt-1" type="radio" name="address"
+                 value="{{ addr.id }}" {% if forloop.first %}checked{% endif %} required
+                 onchange="highlightAddr('addr-{{ addr.id }}')">
+          <div>
+            <strong>{{ addr.name }}</strong>
+            <p class="mb-0 text-muted small mt-1">
+              {{ addr.address }}, {{ addr.city }}, {{ addr.state }} — {{ addr.pincode }}<br>
+              📞 {{ addr.mobile }}
+            </p>
+          </div>
+        </div>
+      </label>
+      {% empty %}
+      <div class="alert alert-warning">
+        No address found. <a href="{% url 'add_address' %}">Add an address</a> first.
+      </div>
+      {% endfor %}
+
+      <a href="{% url 'add_address' %}" class="btn btn-outline-success btn-sm mt-2">+ Add New Address</a>
+    </div>
+
+    <!-- PAYMENT -->
+    <div class="card shadow-sm p-4">
+      <h5 class="mb-3"><span class="badge bg-success me-2">2</span>Payment Method</h5>
+
+      <!-- COD -->
+      <div class="payment-option active" onclick="selectPayment(this,'cod')">
+        <div class="d-flex align-items-center">
+          <input type="radio" name="pay_display" value="cod" checked>
+          <span class="pay-label">💵 Cash on Delivery</span>
+        </div>
+        <div class="pay-desc">Pay in cash when your order arrives.</div>
+        <div class="pay-icons"><span class="pay-badge" style="color:#198754;">COD</span></div>
+      </div>
+
+      <!-- CARD -->
+      <div class="payment-option" onclick="selectPayment(this,'card')">
+        <div class="d-flex align-items-center">
+          <input type="radio" name="pay_display" value="card">
+          <span class="pay-label">💳 Credit / Debit Card</span>
+        </div>
+        <div class="pay-desc">Visa, Mastercard, RuPay accepted.</div>
+        <div class="pay-icons">
+          <span class="pay-badge" style="color:#1a1f71;">VISA</span>
+          <span class="pay-badge" style="color:#eb001b;">MC</span>
+          <span class="pay-badge" style="color:#00457c;">RuPay</span>
+        </div>
+        <div class="payment-detail-form" id="card-form">
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Card Number</label>
+            <input type="text" class="form-control" id="cardNumber"
+                   placeholder="1234 5678 9012 3456" maxlength="19"
+                   oninput="fmtCard(this)">
+          </div>
+          <div class="card-row">
+            <div class="form-group">
+              <label class="form-label small fw-semibold">Expiry</label>
+              <input type="text" class="form-control" id="cardExpiry"
+                     placeholder="MM / YY" maxlength="7" oninput="fmtExpiry(this)">
+            </div>
+            <div class="form-group">
+              <label class="form-label small fw-semibold">CVV</label>
+              <input type="password" class="form-control" id="cardCvv" placeholder="•••" maxlength="3">
+            </div>
+          </div>
+          <div class="mt-3">
+            <label class="form-label small fw-semibold">Name on Card</label>
+            <input type="text" class="form-control" id="cardName" placeholder="FULL NAME">
+          </div>
+        </div>
+      </div>
+
+      <!-- UPI -->
+      <div class="payment-option" onclick="selectPayment(this,'upi')">
+        <div class="d-flex align-items-center">
+          <input type="radio" name="pay_display" value="upi">
+          <span class="pay-label">📱 UPI</span>
+        </div>
+        <div class="pay-desc">GPay, PhonePe, Paytm, BHIM & more.</div>
+        <div class="pay-icons">
+          <span class="pay-badge" style="color:#5f259f;">GPay</span>
+          <span class="pay-badge" style="color:#5f259f;">PhonePe</span>
+          <span class="pay-badge" style="color:#5f259f;">Paytm</span>
+        </div>
+        <div class="payment-detail-form" id="upi-form">
+          <label class="form-label small fw-semibold">UPI ID</label>
+          <div class="d-flex gap-2">
+            <input type="text" class="form-control" id="upiId" placeholder="yourname@upi">
+            <button type="button" class="btn btn-outline-success btn-sm" onclick="verifyUPI()">Verify</button>
+          </div>
+          <small id="upiStatus" class="mt-1 d-block"></small>
+        </div>
+      </div>
+
+      <!-- NET BANKING -->
+      <div class="payment-option" onclick="selectPayment(this,'netbanking')">
+        <div class="d-flex align-items-center">
+          <input type="radio" name="pay_display" value="netbanking">
+          <span class="pay-label">🏦 Net Banking</span>
+        </div>
+        <div class="pay-desc">All major Indian banks supported.</div>
+        <div class="pay-icons">
+          <span class="pay-badge" style="color:#0d6efd;">SBI</span>
+          <span class="pay-badge" style="color:#0d6efd;">HDFC</span>
+          <span class="pay-badge" style="color:#0d6efd;">ICICI</span>
+        </div>
+        <div class="payment-detail-form" id="netbanking-form">
+          <label class="form-label small fw-semibold">Select Your Bank</label>
+          <div class="bank-grid">
+            <div class="bank-btn" onclick="selectBank(this,event)"><span class="bank-icon">🏛️</span>SBI</div>
+            <div class="bank-btn" onclick="selectBank(this,event)"><span class="bank-icon">🔵</span>HDFC</div>
+            <div class="bank-btn" onclick="selectBank(this,event)"><span class="bank-icon">🟠</span>ICICI</div>
+            <div class="bank-btn" onclick="selectBank(this,event)"><span class="bank-icon">🔴</span>Axis</div>
+            <div class="bank-btn" onclick="selectBank(this,event)"><span class="bank-icon">🟡</span>PNB</div>
+            <div class="bank-btn" onclick="selectBank(this,event)"><span class="bank-icon">💚</span>Kotak</div>
+          </div>
+          <input type="hidden" id="selectedBank">
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- RIGHT: SUMMARY -->
+  <div class="col-md-5">
+    <div class="card shadow-sm p-4" style="position:sticky;top:20px;">
+      <h5 class="mb-3">Order Summary</h5>
+      <table class="table table-borderless">
+        <thead>
+          <tr class="text-muted small">
+            <th>Watch</th><th class="text-center">Qty</th><th class="text-end">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in cart_items %}
+          <tr>
+            <td>
+              <strong>{{ item.watch.name }}</strong><br>
+              <small class="text-muted">{{ item.watch.brand }}</small>
+            </td>
+            <td class="text-center">{{ item.quantity }}</td>
+            <td class="text-end">₹{{ item.total_price }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <hr>
+      <div class="d-flex justify-content-between text-muted small mb-1">
+        <span>Subtotal</span><span>₹ {{ total }}</span>
+      </div>
+      <div class="d-flex justify-content-between text-muted small">
+        <span>Shipping</span><span>₹ 40</span>
+      </div>
+      <hr>
+      <div class="d-flex justify-content-between fw-bold fs-5">
+        <span>Total</span><span>₹ {{ total|add:40 }}</span>
+      </div>
+      <div class="mt-3 p-2 bg-light rounded small text-muted">
+        Paying via: <strong id="payLabel">Cash on Delivery</strong>
+      </div>
+      <button type="submit" class="btn btn-success w-100 mt-3 py-2 fw-semibold fs-6">
+        🛒 Place Order
+      </button>
+      <div class="text-center mt-2">
+        <small class="text-muted">🔒 100% Secure Checkout</small>
+      </div>
+    </div>
+  </div>
+
+</div>
+</form>
+</div>
+
+<script>
+  // Highlight first address on load
+  document.addEventListener('DOMContentLoaded', function() {
+    const first = document.querySelector('.addr-card');
+    if (first) first.classList.add('active');
+  });
+
+  function highlightAddr(id) {
+    document.querySelectorAll('.addr-card').forEach(c => c.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  const payLabels = { cod:'💵 Cash on Delivery', card:'💳 Credit / Debit Card', upi:'📱 UPI', netbanking:'🏦 Net Banking' };
+
+  function selectPayment(el, method) {
+    document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('active'));
+    document.querySelectorAll('.payment-detail-form').forEach(f => f.classList.remove('show'));
+    el.classList.add('active');
+    el.querySelector('input[type=radio]').checked = true;
+    document.getElementById('paymentMethodInput').value = method;
+    document.getElementById('payLabel').textContent = payLabels[method];
+    const sub = document.getElementById(method + '-form');
+    if (sub) sub.classList.add('show');
+  }
+
+  function selectBank(el, e) {
+    e.stopPropagation();
+    document.querySelectorAll('.bank-btn').forEach(b => b.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('selectedBank').value = el.innerText.trim();
+  }
+
+  function fmtCard(inp) {
+    let v = inp.value.replace(/\D/g,'').substring(0,16);
+    inp.value = v.replace(/(.{4})/g,'$1  ').trim();
+  }
+  function fmtExpiry(inp) {
+    let v = inp.value.replace(/\D/g,'').substring(0,4);
+    if (v.length >= 3) v = v.substring(0,2) + ' / ' + v.substring(2);
+    inp.value = v;
+  }
+
+  function verifyUPI() {
+    const upi = document.getElementById('upiId').value;
+    const st = document.getElementById('upiStatus');
+    if (!upi || !upi.includes('@')) {
+      st.textContent = '❌ Enter a valid UPI ID (e.g. name@upi)';
+      st.className = 'text-danger small mt-1 d-block'; return;
+    }
+    st.textContent = '⏳ Verifying...'; st.className = 'text-muted small mt-1 d-block';
+    setTimeout(() => { st.textContent = '✅ UPI ID verified!'; st.className = 'text-success small mt-1 d-block'; }, 1200);
+  }
+
+  function validatePayment() {
+    const m = document.getElementById('paymentMethodInput').value;
+    if (m === 'card') {
+      const n = document.getElementById('cardNumber').value.replace(/\s/g,'');
+      if (n.length < 16 || !document.getElementById('cardExpiry').value ||
+          document.getElementById('cardCvv').value.length < 3 || !document.getElementById('cardName').value) {
+        alert('Please fill in all card details.'); return false;
+      }
+    }
+    if (m === 'upi' && !document.getElementById('upiId').value.includes('@')) {
+      alert('Please enter and verify a valid UPI ID.'); return false;
+    }
+    if (m === 'netbanking' && !document.getElementById('selectedBank').value) {
+      alert('Please select your bank.'); return false;
+    }
+    return true;
+  }
+</script>
+
+{% endblock %}
