@@ -1,0 +1,226 @@
+{% extends 'watches/base.html' %}
+{% load static %}
+
+{% block main_content %}
+
+<style>
+  .form-wrap { background: #f4f6f9; min-height: 100vh; padding: 40px 0; }
+
+  .form-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0,0,0,.08);
+    overflow: hidden;
+    max-width: 780px;
+    margin: 0 auto;
+  }
+  .form-card-header {
+    background: linear-gradient(135deg, #198754, #20c997);
+    padding: 28px 36px;
+    color: #fff;
+  }
+  .form-card-header h3 { margin: 0; font-size: 22px; font-weight: 700; }
+  .form-card-header p { margin: 4px 0 0; opacity: .85; font-size: 13px; }
+  .form-card-body { padding: 36px; }
+
+  .form-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    color: #555;
+    margin-bottom: 6px;
+  }
+  .form-control, .form-select {
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 11px 14px;
+    font-size: 14px;
+    transition: all .2s;
+    background: #fafafa;
+  }
+  .form-control:focus, .form-select:focus {
+    border-color: #198754;
+    box-shadow: 0 0 0 3px rgba(25,135,84,.12);
+    background: #fff;
+    outline: none;
+  }
+  textarea.form-control { min-height: 110px; resize: vertical; }
+
+  /* Image preview */
+  .img-preview-wrap {
+    border: 2px dashed #d1fae5;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    background: #f0fdf4;
+    cursor: pointer;
+    transition: all .2s;
+    position: relative;
+  }
+  .img-preview-wrap:hover { border-color: #198754; background: #ecfdf5; }
+  .img-preview-wrap input[type=file] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+  }
+  #imagePreview {
+    max-width: 200px;
+    max-height: 160px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    display: none;
+    object-fit: cover;
+  }
+  .upload-hint { font-size: 13px; color: #888; margin: 0; }
+  .upload-icon { font-size: 32px; margin-bottom: 6px; }
+
+  /* Existing image */
+  .current-img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; margin-bottom: 8px; }
+
+  .section-divider {
+    height: 1px; background: #f0f0f0; margin: 28px 0;
+  }
+
+  .btn-submit {
+    background: linear-gradient(135deg, #198754, #20c997);
+    color: #fff; border: none;
+    padding: 13px 36px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .2s;
+    width: 100%;
+  }
+  .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(25,135,84,.3); }
+  .btn-cancel {
+    display: block; text-align: center;
+    margin-top: 14px; color: #888; font-size: 13px; text-decoration: none;
+  }
+  .btn-cancel:hover { color: #555; }
+
+  .field-group { margin-bottom: 20px; }
+  .invalid-feedback { font-size: 12px; color: #dc3545; margin-top: 4px; }
+</style>
+
+<div class="form-wrap">
+<div class="container">
+<div class="form-card">
+
+  <!-- Header -->
+  <div class="form-card-header">
+    <h3>{% if action == 'Add' %}➕ Add New Watch{% else %}✏️ Edit Watch{% endif %}</h3>
+    <p>{% if action == 'Add' %}Fill in the details to add a new watch to the store{% else %}Update the watch details below{% endif %}</p>
+  </div>
+
+  <!-- Form -->
+  <div class="form-card-body">
+  <form method="POST" enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+
+    <div class="row g-3">
+
+      <!-- Name -->
+      <div class="col-md-6 field-group">
+        <label class="form-label">Watch Name *</label>
+        <input type="text" name="name" class="form-control {% if form.name.errors %}is-invalid{% endif %}"
+               value="{{ form.name.value|default:'' }}" placeholder="e.g. Submariner Date" required>
+        {% for err in form.name.errors %}<div class="invalid-feedback">{{ err }}</div>{% endfor %}
+      </div>
+
+      <!-- Brand -->
+      <div class="col-md-6 field-group">
+        <label class="form-label">Brand *</label>
+        <input type="text" name="brand" class="form-control {% if form.brand.errors %}is-invalid{% endif %}"
+               value="{{ form.brand.value|default:'' }}" placeholder="e.g. Rolex" required>
+        {% for err in form.brand.errors %}<div class="invalid-feedback">{{ err }}</div>{% endfor %}
+      </div>
+
+      <!-- Category -->
+      <div class="col-md-6 field-group">
+        <label class="form-label">Category *</label>
+        <select name="category" class="form-select {% if form.category.errors %}is-invalid{% endif %}" required>
+          <option value="">-- Select Category --</option>
+          {% for val, label in form.fields.category.choices %}
+            <option value="{{ val }}" {% if form.category.value == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+        {% for err in form.category.errors %}<div class="invalid-feedback">{{ err }}</div>{% endfor %}
+      </div>
+
+      <!-- Price -->
+      <div class="col-md-3 field-group">
+        <label class="form-label">Price (₹) *</label>
+        <input type="number" name="price" class="form-control {% if form.price.errors %}is-invalid{% endif %}"
+               value="{{ form.price.value|default:'' }}" placeholder="20000" min="0" step="0.01" required>
+        {% for err in form.price.errors %}<div class="invalid-feedback">{{ err }}</div>{% endfor %}
+      </div>
+
+      <!-- Discounted Price -->
+      <div class="col-md-3 field-group">
+        <label class="form-label">Discounted Price (₹)</label>
+        <input type="number" name="discounted_price" class="form-control"
+               value="{{ form.discounted_price.value|default:'' }}" placeholder="18000" min="0" step="0.01">
+        <small class="text-muted" style="font-size:11px;">Leave empty if no discount</small>
+      </div>
+
+      <!-- Description -->
+      <div class="col-12 field-group">
+        <label class="form-label">Description *</label>
+        <textarea name="description" class="form-control {% if form.description.errors %}is-invalid{% endif %}"
+                  placeholder="Write a detailed description of the watch..." required>{{ form.description.value|default:'' }}</textarea>
+        {% for err in form.description.errors %}<div class="invalid-feedback">{{ err }}</div>{% endfor %}
+      </div>
+
+      <!-- Image Upload -->
+      <div class="col-12 field-group">
+        <label class="form-label">Watch Image {% if action == 'Add' %}*{% endif %}</label>
+
+        {% if action == 'Edit' and watch.image %}
+        <div class="mb-2">
+          <p style="font-size:12px; color:#888; margin-bottom:6px;">Current image:</p>
+          <img src="{{ watch.image.url }}" class="current-img" alt="Current">
+        </div>
+        <p style="font-size:12px; color:#888;">Upload a new image to replace it (optional):</p>
+        {% endif %}
+
+        <div class="img-preview-wrap" onclick="document.getElementById('imgInput').click()">
+          <input type="file" name="image" id="imgInput" accept="image/*"
+                 onchange="previewImage(this)" {% if action == 'Add' %}required{% endif %}>
+          <img id="imagePreview" src="#" alt="Preview">
+          <div class="upload-icon">📷</div>
+          <p class="upload-hint">Click to upload image<br><small>JPG, PNG supported</small></p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="section-divider"></div>
+
+    <button type="submit" class="btn-submit">
+      {% if action == 'Add' %}✅ Add Watch to Store{% else %}💾 Save Changes{% endif %}
+    </button>
+    <a href="{% url 'admin_watch_list' %}" class="btn-cancel">← Cancel and go back</a>
+
+  </form>
+  </div>
+
+</div>
+</div>
+</div>
+
+<script>
+function previewImage(input) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const preview = document.getElementById('imagePreview');
+      preview.src = e.target.result;
+      preview.style.display = 'block';
+      document.querySelector('.upload-icon').style.display = 'none';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+</script>
+
+{% endblock %}
