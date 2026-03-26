@@ -1,0 +1,89 @@
+{% extends "watches/base.html" %}
+
+{% block main_content %}
+
+<div class="container mt-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-md-6">
+
+            <div class="card shadow">
+
+                <div class="card-header bg-success text-white">
+                    <h4>Add New Address</h4>
+                </div>
+
+                <div class="card-body">
+
+                    <form method="POST">
+
+                        {% csrf_token %}
+
+                        <!-- Name -->
+                        <div class="mb-3">
+                            <label class="form-label"><b>Full Name</b></label>
+                            {{ form.name }}
+                        </div>
+
+                        <!-- Mobile -->
+                        <div class="mb-3">
+                            <label class="form-label"><b>Mobile Number</b></label>
+
+                            <input type="tel"
+                                   name="mobile"
+                                   class="form-control"
+                                   pattern="[0-9]{10}"
+                                   maxlength="10"
+                                   placeholder="Enter 10 digit mobile number"
+                                   required>
+                        </div>
+
+                        <!-- Address -->
+                        <div class="mb-3">
+                            <label class="form-label"><b>Address</b></label>
+                            {{ form.address }}
+                        </div>
+
+                        <!-- City -->
+                        <div class="mb-3">
+                            <label class="form-label"><b>City</b></label>
+                            {{ form.city }}
+                        </div>
+
+                        <!-- State -->
+                        <div class="mb-3">
+                            <label class="form-label"><b>State</b></label>
+                            {{ form.state }}
+                        </div>
+
+                        <!-- Pincode -->
+                        <div class="mb-3">
+                            <label class="form-label"><b>Pincode</b></label>
+
+                            <input type="text"
+                                   name="pincode"
+                                   class="form-control"
+                                   pattern="[0-9]{6}"
+                                   maxlength="6"
+                                   placeholder="Enter 6 digit pincode"
+                                   required>
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100">
+                            Save Address
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -3,20 +3,23 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.views import View
 from django.contrib import messages
 from django.contrib.auth import login, logout
-from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 
-from .models import Watch, Cart, Order
-from .forms import CustomerRegistrationForm, LoginForm
-
-from .forms import AddressForm
-from .models import Address
-from .forms import EditProfileForm
+from .models import Watch, Cart, Order, Address, Wishlist, ContactMessage
+from .forms import (
+    CustomerRegistrationForm,
+    LoginForm,
+    AddressForm,
+    EditProfileForm,
+    WatchForm,
+)
+from django.contrib.admin.views.decorators import staff_member_required
 
 
 # ---------------- HOME ----------------
 def home(request):
-    return render(request, 'watches/home.html')
+    watches = Watch.objects.all().order_by('-id')
+    return render(request, 'watches/home.html', {'watches': watches})
 
 
 # ---------------- ABOUT ----------------
@@ -26,8 +29,42 @@ def about(request):
 
 # ---------------- CONTACT ----------------
 def contact(request):
+    if request.method == "POST":
+        name = request.POST.get("name")
+        email = request.POST.get("email")
+        subject = request.POST.get("subject", "")
+        message_text = request.POST.get("message")
+
+        if name and email and message_text:
+            ContactMessage.objects.create(
+                name=name,
+                email=email,
+                subject=subject,
+                message=message_text,
+            )
+            messages.success(
+                request,
+                "Thank you for contacting us. We will get back to you soon.",
+            )
+            return redirect("contact")
+        else:
+            messages.error(request, "Please fill in all the required fields.")
+
     return render(request, 'watches/contact.html')
 
+def search(request):
+    query = request.GET.get('q', '')
+    watches = Watch.objects.filter(
+        name__icontains=query
+    ) | Watch.objects.filter(
+        brand__icontains=query
+    ) | Watch.objects.filter(
+        category__icontains=query
+    )
+    return render(request, 'watches/search_results.html', {
+        'watches': watches,
+        'query': query
+    })
 
 # ---------------- ALL CATEGORIES ----------------
 def all_categories(request):
@@ -100,7 +137,17 @@ def user_logout(request):
 
 @login_required
 def profile(request):
-    return render(request, "watches/profile.html")
+    addresses = Address.objects.filter(user=request.user)
+    orders = Order.objects.filter(user=request.user).order_by('-ordered_date')
+    return render(
+        request,
+        "watches/profile.html",
+        {
+            "addresses": addresses,
+            "orders": orders,
+        },
+    )
+
 
 @login_required
 def add_address(request):
@@ -122,10 +169,9 @@ def add_address(request):
 
 @login_required
 def address(request):
-
     add = Address.objects.filter(user=request.user)
-
     return render(request, "watches/address.html", {'add': add})
+
 
 @login_required
 def edit_address(request, id):
@@ -148,6 +194,7 @@ def delete_address(request, id):
     address.delete()
     return redirect('address')
 
+
 @login_required
 def edit_profile(request):
 
@@ -162,6 +209,7 @@ def edit_profile(request):
         form = EditProfileForm(instance=request.user)
 
     return render(request, 'watches/edit_profile.html', {'form': form})
+
 
 @login_required
 def add_to_cart(request, watch_id):
@@ -179,6 +227,7 @@ def add_to_cart(request, watch_id):
 
     return redirect('view_cart')
 
+
 @login_required
 def view_cart(request):
 
@@ -195,6 +244,7 @@ def view_cart(request):
 
     return render(request, 'watches/cart.html', context)
 
+
 @login_required
 def remove_from_cart(request, cart_id):
 
@@ -202,6 +252,7 @@ def remove_from_cart(request, cart_id):
     item.delete()
 
     return redirect('view_cart')
+
 
 @login_required
 def increase_quantity(request, cart_id):
@@ -212,6 +263,7 @@ def increase_quantity(request, cart_id):
     cart.save()
 
     return redirect('view_cart')
+
 
 @login_required
 def decrease_quantity(request, cart_id):
@@ -225,6 +277,7 @@ def decrease_quantity(request, cart_id):
         cart.delete()
 
     return redirect('view_cart')
+
 
 @login_required
 def checkout(request):
@@ -248,17 +301,22 @@ def checkout(request):
                 watch=item.watch,
                 quantity=item.quantity,
                 price=item.total_price(),
+                total_amount=item.total_price(),
                 address=address,
-                status="Confirmed (" + payment_method.upper() + ")"
+                status=f"Confirmed ({payment_method.upper()})",
             )
             placed_orders.append(order)
 
         cart_items.delete()
         messages.success(request, "Order placed successfully!")
-        return render(request, 'watches/order_confirmation.html', {
-            'orders': placed_orders,
-            'payment_method': payment_method,
-        })
+        return render(
+            request,
+            'watches/order_confirmation.html',
+            {
+                'orders': placed_orders,
+                'payment_method': payment_method,
+            },
+        )
 
     context = {
         'cart_items': cart_items,
@@ -268,11 +326,36 @@ def checkout(request):
 
     return render(request, 'watches/checkout.html', context)
 
-from .forms import WatchForm
-from django.contrib.admin.views.decorators import staff_member_required
+
+@login_required
+def wishlist(request):
+    items = Wishlist.objects.filter(user=request.user).select_related('watch')
+    return render(
+        request,
+        'watches/wishlist.html',
+        {
+            'wishlist_items': items,
+        },
+    )
+
+
+@login_required
+def add_to_wishlist(request, watch_id):
+    watch = get_object_or_404(Watch, id=watch_id)
+    Wishlist.objects.get_or_create(user=request.user, watch=watch)
+    messages.success(request, "Added to wishlist.")
+    return redirect('wishlist')
+
+
+@login_required
+def remove_from_wishlist(request, wishlist_id):
+    item = get_object_or_404(Wishlist, id=wishlist_id, user=request.user)
+    item.delete()
+    messages.info(request, "Removed from wishlist.")
+    return redirect('wishlist')
+
 
 # ---- ADMIN: MANAGE WATCHES ----
-
 @staff_member_required(login_url='login')
 def admin_watch_list(request):
     watches = Watch.objects.all().order_by('-id')
@@ -289,7 +372,14 @@ def admin_add_watch(request):
             return redirect('admin_watch_list')
     else:
         form = WatchForm()
-    return render(request, 'watches/admin_watch_form.html', {'form': form, 'action': 'Add'})
+    return render(
+        request,
+        'watches/admin_watch_form.html',
+        {
+            'form': form,
+            'action': 'Add',
+        },
+    )
 
 
 @staff_member_required(login_url='login')
@@ -303,7 +393,15 @@ def admin_edit_watch(request, pk):
             return redirect('admin_watch_list')
     else:
         form = WatchForm(instance=watch)
-    return render(request, 'watches/admin_watch_form.html', {'form': form, 'action': 'Edit', 'watch': watch})
+    return render(
+        request,
+        'watches/admin_watch_form.html',
+        {
+            'form': form,
+            'action': 'Edit',
+            'watch': watch,
+        },
+    )
 
 
 @staff_member_required(login_url='login')

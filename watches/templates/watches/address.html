@@ -1,0 +1,83 @@
+{% extends "watches/base.html" %}
+
+{% block main_content %}
+
+<div class="container mt-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3>My Addresses</h3>
+
+        <a href="{% url 'add_address' %}" class="btn btn-success">
+            + Add New Address
+        </a>
+    </div>
+
+    <div class="row">
+
+        {% if add %}
+
+            {% for a in add %}
+
+            <div class="col-md-4 mb-4">
+
+                <div class="card shadow h-100">
+
+                    <div class="card-body">
+
+                        <h5 class="text-success mb-3">{{ a.name }}</h5>
+
+                        <p class="mb-1">
+                            {{ a.address }}
+                        </p>
+
+                        <p class="mb-1">
+                            {{ a.city }}, {{ a.state }}
+                        </p>
+
+                        <p class="mb-1">
+                            <b>Pincode:</b> {{ a.pincode }}
+                        </p>
+
+                        <p class="mb-3">
+                            <b>Mobile:</b> {{ a.mobile }}
+                        </p>
+
+                        <div class="d-flex justify-content-between">
+
+                            <a href="{% url 'edit_address' a.id %}" 
+                            class="btn btn-sm btn-outline-success">
+                                Edit
+                            </a>
+
+                            <a href="{% url 'delete_address' a.id %}" 
+                            class="btn btn-sm btn-outline-danger">
+                                Delete
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="col-12 text-center">
+
+                <div class="alert alert-info">
+                    No address found. Please add a new address.
+                </div>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

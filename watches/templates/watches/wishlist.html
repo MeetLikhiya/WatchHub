@@ -1,0 +1,68 @@
+{% extends 'watches/base.html' %}
+
+{% block title %}My Wishlist{% endblock %}
+
+{% block main_content %}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="mb-0">My Wishlist</h3>
+        <a href="{% url 'all_watches' %}" class="btn btn-sm btn-outline-success">
+            Browse Watches
+        </a>
+    </div>
+
+    <div class="row g-4">
+        {% for item in wishlist_items %}
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+            <div class="card h-100 shadow-sm border-0 product-card">
+                <a href="{% url 'watch_detail' item.watch.pk %}" class="text-decoration-none text-dark">
+                    {% if item.watch.image %}
+                    <img src="{{ item.watch.image.url }}"
+                         class="card-img-top"
+                         alt="{{ item.watch.name }}"
+                         style="height:220px; object-fit:cover;">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title mb-1">{{ item.watch.name }}</h5>
+                        <p class="text-muted small mb-2">
+                            {{ item.watch.brand }} · {{ item.watch.category }}
+                        </p>
+                        {% if item.watch.discounted_price %}
+                        <p class="mb-0">
+                            <span class="text-danger fw-bold">₹{{ item.watch.discounted_price }}</span>
+                            <span class="text-muted text-decoration-line-through ms-1">
+                                ₹{{ item.watch.price }}
+                            </span>
+                        </p>
+                        {% else %}
+                            <p class="mb-0 fw-bold text-success">₹{{ item.watch.price }}</p>
+                        {% endif %}
+                    </div>
+                </a>
+                <div class="card-footer bg-white border-0 pt-0 pb-3 px-3">
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'add_to_cart' item.watch.id %}" class="btn btn-sm btn-dark">
+                            Add to Cart
+                        </a>
+                        <a href="{% url 'remove_from_wishlist' item.id %}"
+                           class="btn btn-sm btn-outline-danger">
+                            Remove
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <h5 class="text-muted mb-3">Your wishlist is empty.</h5>
+            <a href="{% url 'all_watches' %}" class="btn btn-success">
+                Start Exploring Watches
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}
+

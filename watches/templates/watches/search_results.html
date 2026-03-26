@@ -1,0 +1,50 @@
+{% extends 'watches/base.html' %}
+
+{% block main_content %}
+
+<div class="container my-5">
+
+    <h4 class="mb-4">
+        Search results for: <span class="text-success">"{{ query }}"</span>
+        <small class="text-muted fs-6">({{ watches.count }} found)</small>
+    </h4>
+
+    <div class="row">
+        {% for watch in watches %}
+        <div class="col-md-3 col-sm-6 mb-4">
+            <a href="{% url 'watch_detail' watch.pk %}" style="text-decoration:none; color:inherit;">
+                <div class="card shadow h-100" style="cursor:pointer;">
+
+                    {% if watch.image %}
+                    <img src="{{ watch.image.url }}" class="card-img-top"
+                         style="height:220px; object-fit:cover;" alt="{{ watch.name }}">
+                    {% endif %}
+
+                    <div class="card-body">
+                        <h5 class="card-title">{{ watch.name }}</h5>
+                        <p class="text-muted small">{{ watch.brand }} · {{ watch.category }}</p>
+
+                        {% if watch.discounted_price %}
+                        <p>
+                            <span class="text-danger fw-bold">₹{{ watch.discounted_price }}</span>
+                            <span class="text-muted text-decoration-line-through ms-2">₹{{ watch.price }}</span>
+                        </p>
+                        {% else %}
+                        <p class="fw-bold text-success">₹{{ watch.price }}</p>
+                        {% endif %}
+                    </div>
+
+                </div>
+            </a>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <h5 class="text-muted">😕 No watches found for "{{ query }}"</h5>
+            <a href="{% url 'all_watches' %}" class="btn btn-success mt-3">Browse All Watches</a>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+{% endblock %}

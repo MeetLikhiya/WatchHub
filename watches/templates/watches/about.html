@@ -1,0 +1,80 @@
+{% extends 'watches/base.html' %}
+{% load static %}
+
+{% block title %}About Us{% endblock %}
+
+{% block main_content %}
+
+<div class="container mt-5">
+
+    <!-- Page Title -->
+    <div class="text-center mb-5">
+        <h1 class="fw-bold">About WatchHub</h1>
+        <p class="text-muted">Premium Watches for Every Personality</p>
+    </div>
+
+    <!-- Our Story -->
+    <div class="row mb-5">
+        <div class="col-md-6">
+            <h3>Our Story</h3>
+            <p>
+                WatchHub was founded with a passion for timeless elegance and modern innovation.
+                We believe that a watch is more than just a timekeeping device — it is a symbol
+                of personality, confidence, and lifestyle.
+                <br><br>
+                Since 2026, we have been curating premium collections including luxury,
+                sports, casual, and smart watches to suit every occasion.
+            </p>
+        </div>
+
+        <div class="col-md-6">
+            <img src="{% static 'watches/images/banner/b3.png' %}" 
+                 class="img-fluid rounded shadow"
+                 alt="Watch Collection">
+        </div>
+    </div>
+
+    <!-- Mission Section -->
+    <div class="bg-light p-4 rounded shadow-sm mb-5">
+        <h3 class="text-center mb-3">Our Mission</h3>
+        <p class="text-center">
+            Our mission is to provide authentic, high-quality watches at competitive prices
+            while delivering exceptional customer service.
+        </p>
+    </div>
+
+    <!-- Why Choose Us -->
+    <div class="mb-5">
+        <h3 class="text-center mb-4">Why Choose WatchHub?</h3>
+
+        <div class="row text-center">
+
+            <div class="col-md-4">
+                <h5>✔ 100% Authentic Products</h5>
+                <p>We guarantee genuine and branded watches.</p>
+            </div>
+
+            <div class="col-md-4">
+                <h5>✔ Affordable Pricing</h5>
+                <p>Luxury and style at prices you’ll love.</p>
+            </div>
+
+            <div class="col-md-4">
+                <h5>✔ Fast Delivery</h5>
+                <p>Safe and secure shipping across India.</p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Call to Action -->
+    <div class="text-center">
+        <h4>Discover Your Perfect Timepiece Today</h4>
+        <a href="{% url 'home' %}" class="btn btn-success mt-3">
+            Explore Collection
+        </a>
+    </div>
+
+</div>
+
+{% endblock %}

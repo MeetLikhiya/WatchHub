@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}WatchHub{% endblock %}</title>
+
+    {% load static %}
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'watches/css/style.css' %}">
+</head>
+
+<body>
+
+<!-- ✅ NAVBAR START -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-success">
+    <div class="container-fluid">
+
+        <!-- Logo -->
+        <a class="navbar-brand" href="{% url 'home' %}">WatchHub</a>
+
+        <!-- Toggle Button -->
+        <button class="navbar-toggler" type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+            <!-- LEFT SIDE -->
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+                <li class="nav-item">
+                    <a class="nav-link{% if request.resolver_match.url_name == 'home' %} active{% endif %}"
+                       href="{% url 'home' %}">Home</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link{% if request.resolver_match.url_name == 'all_watches' %} active{% endif %}"
+                       href="{% url 'all_watches' %}">Watches</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link{% if request.resolver_match.url_name == 'contact' %} active{% endif %}"
+                       href="{% url 'contact' %}">Contact</a>
+                </li>
+
+                {% if request.user.is_staff %}
+                <!-- Admin Panel Link -->
+                <li class="nav-item">
+                    <a class="nav-link fw-bold" href="{% url 'admin_watch_list' %}"
+                       style="border-radius:6px; padding:8px 10px; margin-right:3px;">
+                        Manage Watches
+                    </a>
+                </li>
+                {% endif %}
+
+                <!-- Categories -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle"
+                       href="#"
+                       data-bs-toggle="dropdown">
+                        Categories
+                    </a>
+
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'category' 'Luxury' %}">💎 Luxury Watches</a></li>
+                        <li><a class="dropdown-item" href="{% url 'category' 'Sport' %}">🏃 Sport Watches</a></li>
+                        <li><a class="dropdown-item" href="{% url 'category' 'Casual' %}">👕 Casual Watches</a></li>
+                        <li><a class="dropdown-item" href="{% url 'category' 'Smart' %}">📱 Smart Watches</a></li>
+                        <li><a class="dropdown-item" href="{% url 'category' 'Vintage' %}">🕰️ Vintage Watches</a></li>
+                    </ul>
+                </li>
+
+            </ul>
+
+            <!-- SEARCH -->
+            <form class="d-flex mx-auto" method="GET" action="{% url 'search' %}">
+                <input class="form-control me-2" type="search" name="q" placeholder="Search watches...">
+                <button class="btn btn-light" type="submit">Search</button>
+            </form>
+
+            <!-- RIGHT SIDE -->
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+
+                {% if request.user.is_authenticated %}
+
+                    <!-- Logged In -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-white"
+                           href="#"
+                           data-bs-toggle="dropdown">
+                            Welcome {{ request.user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                        <a class="dropdown-item" href="{% url 'profile' %}">
+                            Profile
+                        </a>
+                            </li>
+                            <!-- <li><a class="dropdown-item" href="#">Orders</a></li> -->
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'logout' %}">
+                                    Logout
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                {% else %}
+
+                    <!-- Login -->
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="{% url 'login' %}">
+                            Login
+                        </a>
+                    </li>
+
+                    <!-- Registration -->
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="{% url 'register' %}">
+                            Register
+                        </a>
+                    </li>
+
+                {% endif %}
+
+                <!-- Cart -->
+                <li class="nav-item ms-2">
+                    <a href="{% url 'view_cart' %}" class="btn btn-outline-light">
+                        Cart
+                        <span class="badge bg-danger ms-1">
+                            {% if request.user.is_authenticated %}
+                                {{ request.user.cart_set.count }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </span>
+                    </a>
+                </li>
+
+                <!-- Wishlist -->
+                <li class="nav-item ms-2">
+                    <a class="btn btn-outline-light" href="{% url 'wishlist' %}">
+                        Wishlist
+                        <span class="badge bg-warning text-dark ms-1">
+                            {% if request.user.is_authenticated and request.user.wishlist_set %}
+                                {{ request.user.wishlist_set.count }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </span>
+                    </a>
+                </li>
+
+            </ul>
+
+        </div>
+    </div>
+</nav>
+<!-- ✅ NAVBAR END -->
+
+
+{% block banner_slider %}{% endblock %}
+{% block information %}{% endblock %}
+
+<!-- Flash Messages -->
+<div class="container mt-3">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+
+<!-- ✅ BODY CONTENT -->
+<div class="container mt-2 mb-5">
+    {% block main_content %}{% endblock %}
+</div>
+
+
+<!-- ✅ FOOTER -->
+<footer class="bg-success text-white text-center p-3">
+    © 2026 WatchHub | Developed by Mr.Hariom
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
